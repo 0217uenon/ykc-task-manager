@@ -10,6 +10,19 @@
   ],
   "tasks": [
     {
+      "id": "mnfvegt72s99eq",
+      "inputDate": "2026-04-01",
+      "createdAt": "2026-04-01T09:55:39.547Z",
+      "updatedAt": "2026-04-01T09:55:39.547Z",
+      "title": "安全衛生管理体制表",
+      "assignee": "上野",
+      "priority": "優先大",
+      "status": "未着手",
+      "occurredDate": "2026-04-01",
+      "deadline": "2026-04-07",
+      "notes": ""
+    },
+    {
       "id": "mnfk8s761g9ed3",
       "inputDate": "2026-04-01",
       "createdAt": "2026-04-01T04:43:18.594Z",
@@ -122,6 +135,20 @@
       "sortOrder": 7
     },
     {
+      "id": "mnfk9ir5glwgxs",
+      "inputDate": "2026-04-01",
+      "createdAt": "2026-04-01T04:43:53.009Z",
+      "updatedAt": "2026-04-01T04:55:15.809Z",
+      "title": "本社安全パトロール（4/24）",
+      "assignee": "上野",
+      "status": "未着手",
+      "occurredDate": "2026-04-01",
+      "deadline": "",
+      "notes": "・新人説明用資料準備必要",
+      "priority": "優先小",
+      "sortOrder": 8
+    },
+    {
       "id": "mnfnokgahiixmh",
       "inputDate": "2026-04-01",
       "createdAt": "2026-04-01T06:19:33.898Z",
@@ -133,7 +160,7 @@
       "occurredDate": "2026-04-01",
       "deadline": "",
       "notes": "",
-      "sortOrder": 8
+      "sortOrder": 9
     },
     {
       "id": "mnfih5swyrlwcp",
@@ -147,22 +174,8 @@
       "deadline": "",
       "notes": "",
       "priority": "優先小",
-      "sortOrder": 9
-    },
-    {
-      "id": "mnfk9ir5glwgxs",
-      "inputDate": "2026-04-01",
-      "createdAt": "2026-04-01T04:43:53.009Z",
-      "updatedAt": "2026-04-01T04:55:15.809Z",
-      "title": "本社安全パトロール（4/24）",
-      "assignee": "上野",
-      "status": "未着手",
-      "occurredDate": "2026-04-01",
-      "deadline": "",
-      "notes": "・新人説明用資料準備必要",
-      "priority": "優先小",
       "sortOrder": 10
     }
   ],
-  "syncedAt": "2026-04-01T07:43:12.328Z"
+  "syncedAt": "2026-04-01T09:55:59.579Z"
 }

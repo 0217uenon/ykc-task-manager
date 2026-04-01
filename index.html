@@ -424,6 +424,7 @@ img { max-width: 100%; height: auto; }
     </button>
     <div class="util-overflow-menu" id="utilOverflowMenu">
       <button class="btn btn-secondary btn-sm" id="btnMemberMobile"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="5" r="2.5"/><path d="M2 13c0-2.5 2-4 5-4s5 1.5 5 4"/></svg> メンバー管理</button>
+      <button class="btn btn-primary-fill btn-sm" id="btnSyncFromRemote"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 13V3M3 7l4-4 4 4"/><rect x="2" y="0.5" width="10" height="1.5" rx="0.5"/></svg> PCと同期</button>
       <button class="btn btn-secondary btn-sm" id="btnExportCSV"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l4 4 4-4M7 13V3"/></svg> CSV出力</button>
       <button class="btn btn-secondary btn-sm" id="btnExportJSON"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l4 4 4-4M7 13V3"/></svg> バックアップ</button>
       <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5l4-4 4 4M7 1v10"/></svg> 復元<input type="file" accept=".json" id="importFile" style="display:none"></label>
@@ -527,7 +528,15 @@ img { max-width: 100%; height: auto; }
 
   var $ = function(id) { return document.getElementById(id); };
 
-  function init() { loadMembers(); loadTasks(); populateAssigneeSelects(); renderStats(); renderTasks(); bindEvents(); }
+  function init() {
+    loadMembers(); loadTasks(); populateAssigneeSelects(); renderStats(); renderTasks(); bindEvents();
+    /* Auto-sync on load if 10+ minutes since last sync */
+    var lastSync = localStorage.getItem('ykc_last_sync');
+    var elapsed = lastSync ? Date.now() - new Date(lastSync).getTime() : Infinity;
+    if (elapsed > 600000 && location.protocol === 'https:') {
+      setTimeout(syncFromRemote, 500);
+    }
+  }
   function loadTasks() { try { var r = localStorage.getItem(STORAGE_KEY); tasks = r ? JSON.parse(r) : []; } catch(e) { tasks = []; } }
   function saveTasks() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
   function loadMembers() { try { var r = localStorage.getItem(MEMBERS_KEY); members = r ? JSON.parse(r) : DEFAULT_MEMBERS.slice(); } catch(e) { members = DEFAULT_MEMBERS.slice(); } }
@@ -714,6 +723,25 @@ img { max-width: 100%; height: auto; }
     downloadFile(bom + header.join(',') + '\n' + rows.join('\n'), 'tasks_' + today() + '.csv', 'text/csv;charset=utf-8'); showToast('CSVをエクスポートしました');
   }
   function exportJSON() { downloadFile(JSON.stringify({ members: members, tasks: tasks }, null, 2), 'tasks_backup_' + today() + '.json', 'application/json'); showToast('バックアップを保存しました'); }
+  function syncFromRemote() {
+    showToast('同期中...');
+    fetch('data.json?t=' + Date.now())
+      .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(remote) {
+        if (!remote || !Array.isArray(remote.tasks)) throw new Error('Invalid');
+        tasks = remote.tasks;
+        if (Array.isArray(remote.members) && remote.members.length > 0) {
+          members = remote.members;
+          saveMembers();
+          populateAssigneeSelects();
+        }
+        saveTasks();
+        renderTasks();
+        localStorage.setItem('ykc_last_sync', new Date().toISOString());
+        showToast(tasks.length + '件のタスクを同期しました');
+      })
+      .catch(function() { showToast('同期データがありません。PCから先に同期してください。'); });
+  }
   function importJSON(e) {
     var file = e.target.files[0]; if (!file) return;
     var reader = new FileReader();
@@ -848,6 +876,7 @@ img { max-width: 100%; height: auto; }
     bindTouchDragDrop($('taskCards'));
 
     /* Export/Import */
+    onTap($('btnSyncFromRemote'), function() { syncFromRemote(); closeUtilMenu(); });
     onTap($('btnExportCSV'), function() { exportCSV(); closeUtilMenu(); });
     onTap($('btnExportJSON'), function() { exportJSON(); closeUtilMenu(); });
     $('importFile').addEventListener('change', importJSON);

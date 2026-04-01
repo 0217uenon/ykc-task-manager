@@ -6,7 +6,7 @@
 <title>メンバータスク管理</title>
 <script>
 // file:// detection: iOS blocks JS on file:// protocol
-if (location.protocol === 'file:') {
+if (location.protocol === 'file:' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
   document.addEventListener('DOMContentLoaded', function() {
     var url = 'https://0217uenon.github.io/ykc-task-manager/';
     document.body.innerHTML =
@@ -530,12 +530,7 @@ img { max-width: 100%; height: auto; }
 
   function init() {
     loadMembers(); loadTasks(); populateAssigneeSelects(); renderStats(); renderTasks(); bindEvents();
-    /* Auto-sync on load if 10+ minutes since last sync */
-    var lastSync = localStorage.getItem('ykc_last_sync');
-    var elapsed = lastSync ? Date.now() - new Date(lastSync).getTime() : Infinity;
-    if (elapsed > 600000 && location.protocol === 'https:') {
-      setTimeout(syncFromRemote, 500);
-    }
+    /* Auto-sync removed: only sync when user explicitly taps the sync button */
   }
   function loadTasks() { try { var r = localStorage.getItem(STORAGE_KEY); tasks = r ? JSON.parse(r) : []; } catch(e) { tasks = []; } }
   function saveTasks() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
@@ -729,6 +724,10 @@ img { max-width: 100%; height: auto; }
       .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function(remote) {
         if (!remote || !Array.isArray(remote.tasks)) throw new Error('Invalid');
+        if (remote.tasks.length === 0 && tasks.length > 0) {
+          showToast('リモートにタスクがありません。ローカルデータを保持します。');
+          return;
+        }
         tasks = remote.tasks;
         if (Array.isArray(remote.members) && remote.members.length > 0) {
           members = remote.members;

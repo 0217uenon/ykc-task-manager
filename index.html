@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>メンバータスク管理</title>
+<script>
+// file:// detection: iOS blocks JS on file:// protocol
+if (location.protocol === 'file:') {
+  document.addEventListener('DOMContentLoaded', function() {
+    var url = 'https://0217uenon.github.io/ykc-task-manager/';
+    document.body.innerHTML =
+      '<div style="max-width:480px;margin:60px auto;padding:24px;font-family:system-ui,sans-serif;text-align:center;color:#1B2A3D">' +
+      '<div style="font-size:48px;margin-bottom:16px">&#128241;</div>' +
+      '<h2 style="font-size:1.2rem;margin-bottom:12px;color:#1E3A5F">スマホで利用するには<br>以下のリンクを開いてください</h2>' +
+      '<p style="font-size:0.9rem;color:#4A5E74;margin-bottom:20px;line-height:1.6">iOSではHTMLファイルを直接開くと<br>アプリが正常に動作しません。<br>以下のWeb版をご利用ください。</p>' +
+      '<a href="' + url + '" style="display:inline-block;padding:14px 28px;background:#3B6FC0;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:1rem;box-shadow:0 2px 8px rgba(59,111,192,0.3)">Web版を開く</a>' +
+      '<p style="margin-top:16px;font-size:0.75rem;color:#8899AB">URL: ' + url + '</p>' +
+      '</div>';
+  });
+}
+</script>
+<style>
+/* ============================================
+   Design System — Calm Blue Theme
+   ui-ux-pro-max compliant / Mobile-first
+   ============================================ */
+:root {
+  --font-sans: 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
+  --color-bg: #F0F4F8;
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #EBF0F6;
+  --color-surface-alt: #F7F9FC;
+  --color-border: #D0D9E4;
+  --color-border-light: #E4EAF1;
+  --color-text: #1B2A3D;
+  --color-text-secondary: #4A5E74;
+  --color-text-muted: #8899AB;
+  --color-text-inverse: #FFFFFF;
+  --color-primary: #3B6FC0;
+  --color-primary-hover: #2D5AA8;
+  --color-primary-light: #E3EDF8;
+  --color-primary-bg: #CDDCF0;
+  --color-primary-subtle: #F0F5FB;
+  --color-accent: #1E3A5F;
+  --color-accent-light: #2C4F7C;
+  --color-danger: #D94444;
+  --color-danger-hover: #C03030;
+  --color-danger-light: #FCF0F0;
+  --color-success: #2E9E7A;
+  --color-success-light: #EBF8F4;
+  --color-warning: #C28820;
+  --color-warning-light: #FDF8EC;
+  --color-hold: #7C6BB5;
+  --color-hold-light: #F3F0FA;
+  --color-muted-status: #7A8A9C;
+  --color-muted-status-light: #F0F2F5;
+  --color-cancel: #94606A;
+  --color-cancel-light: #F8F0F2;
+  --color-urgent: #C62828;
+  --color-urgent-light: #FDECEA;
+  --color-high: #E65100;
+  --color-high-light: #FFF3E0;
+  --color-medium: #F9A825;
+  --color-medium-light: #FFFDE7;
+  --color-low: #558B6E;
+  --color-low-light: #EDF5F0;
+  --shadow-xs: 0 1px 2px rgba(27,42,61,0.04);
+  --shadow-sm: 0 1px 3px rgba(27,42,61,0.06), 0 1px 2px rgba(27,42,61,0.04);
+  --shadow-md: 0 4px 12px rgba(27,42,61,0.07), 0 2px 4px rgba(27,42,61,0.04);
+  --shadow-lg: 0 12px 28px rgba(27,42,61,0.10), 0 4px 10px rgba(27,42,61,0.05);
+  --shadow-xl: 0 20px 44px rgba(27,42,61,0.14), 0 8px 18px rgba(27,42,61,0.06);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 100px;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration: 200ms;
+  --duration-slow: 300ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; -webkit-text-size-adjust: 100%; }
+body { font-family: var(--font-sans); background: var(--color-bg); color: var(--color-text); line-height: 1.6; min-height: 100vh; min-height: 100dvh; overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+img { max-width: 100%; height: auto; }
+
+/* App Shell */
+.app { max-width: 1200px; margin: 0 auto; padding: 0 16px 100px; }
+
+/* Header */
+.header { position: sticky; top: 0; z-index: 50; background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%); box-shadow: 0 2px 12px rgba(27,42,61,0.15); }
+.header-inner { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; padding: 14px 20px; }
+.header h1 { font-size: 1.2rem; font-weight: 700; color: var(--color-text-inverse); letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
+.header h1 .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; border-radius: var(--radius-md); font-size: 0.875rem; font-weight: 600; transition: all var(--duration) var(--ease); white-space: nowrap; min-height: 44px; cursor: pointer; }
+.btn-primary { background: var(--color-text-inverse); color: var(--color-primary); box-shadow: var(--shadow-sm); }
+.btn-primary:hover { background: #F0F5FB; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-primary-fill { background: var(--color-primary); color: var(--color-text-inverse); box-shadow: 0 2px 8px rgba(59,111,192,0.3); }
+.btn-primary-fill:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
+.btn-secondary { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+.btn-secondary:hover { background: var(--color-surface-hover); border-color: var(--color-primary-bg); }
+.btn-danger-fill { background: var(--color-danger); color: var(--color-text-inverse); }
+.btn-danger-fill:hover { background: var(--color-danger-hover); }
+.btn-danger-outline { background: var(--color-danger-light); color: var(--color-danger); border: 1px solid transparent; }
+.btn-danger-outline:hover { background: var(--color-danger); color: var(--color-text-inverse); }
+.btn-ghost { color: rgba(255,255,255,0.85); padding: 8px; min-height: 44px; min-width: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; }
+.btn-ghost:hover { background: rgba(255,255,255,0.15); color: #FFF; }
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; min-height: 36px; }
+
+/* Stats Dashboard */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 20px 0; }
+.stat-card { background: var(--color-surface); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 14px 16px; transition: all var(--duration) var(--ease); position: relative; overflow: hidden; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.stat-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); margin-bottom: 4px; }
+.stat-value { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.03em; }
+.stat-total .stat-value { color: var(--color-accent); }
+.stat-total::before { background: var(--color-accent); }
+.stat-notstarted .stat-value { color: var(--color-muted-status); }
+.stat-notstarted::before { background: var(--color-muted-status); }
+.stat-inprogress .stat-value { color: var(--color-primary); }
+.stat-inprogress::before { background: var(--color-primary); }
+.stat-review .stat-value { color: var(--color-warning); }
+.stat-review::before { background: var(--color-warning); }
+.stat-done .stat-value { color: var(--color-success); }
+.stat-done::before { background: var(--color-success); }
+.stat-hold .stat-value { color: var(--color-hold); }
+.stat-hold::before { background: var(--color-hold); }
+
+/* Filter & Search */
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; }
+.search-box { flex: 1; min-width: 200px; position: relative; }
+.search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); pointer-events: none; }
+.search-box input { width: 100%; padding: 10px 14px 10px 40px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); outline: none; transition: all var(--duration) var(--ease); min-height: 44px; }
+.search-box input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+.search-box input::placeholder { color: var(--color-text-muted); }
+.filter-select { padding: 10px 36px 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234A5E74' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; transition: all var(--duration) var(--ease); min-height: 44px; }
+.filter-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+
+/* Filter toggle (mobile) */
+.toolbar-filter-toggle { display: none; }
+.toolbar-filters { display: contents; }
+
+/* Task Table (Desktop) */
+.task-table-wrap { background: var(--color-surface); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.task-table { width: 100%; border-collapse: collapse; }
+.task-table th { padding: 12px 14px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); background: var(--color-surface-alt); border-bottom: 1px solid var(--color-border); text-align: left; white-space: nowrap; cursor: pointer; user-select: none; transition: color var(--duration) var(--ease); }
+.task-table th:hover { color: var(--color-primary); }
+.task-table th .sort-icon { display: inline-block; margin-left: 4px; opacity: 0.35; font-size: 0.6rem; }
+.task-table td { padding: 13px 14px; border-bottom: 1px solid var(--color-border-light); font-size: 0.875rem; vertical-align: middle; }
+.task-table tr:last-child td { border-bottom: none; }
+.task-table tbody tr { transition: background var(--duration) var(--ease); cursor: grab; }
+.task-table tbody tr:hover { background: var(--color-primary-subtle); }
+.task-table tbody tr.dragging { opacity: 0.4; background: var(--color-primary-light); }
+.task-table tbody tr.drag-over { box-shadow: 0 -2px 0 0 var(--color-primary) inset; }
+.task-table .col-actions { width: 90px; text-align: right; }
+.task-table .col-priority { width: 95px; }
+.task-table .col-status { width: 110px; }
+.task-table .col-date { width: 105px; white-space: nowrap; }
+.task-table .col-assignee { width: 110px; }
+.task-title-cell { font-weight: 600; color: var(--color-text); }
+.task-date { font-size: 0.8rem; color: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.task-notes { font-size: 0.8rem; color: var(--color-text-secondary); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.overdue { color: var(--color-danger) !important; font-weight: 600; }
+.row-actions { display: flex; gap: 4px; justify-content: flex-end; }
+.row-actions button { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); transition: all var(--duration) var(--ease); cursor: pointer; }
+.row-actions .btn-edit:hover { background: var(--color-primary-light); color: var(--color-primary); }
+.row-actions .btn-del:hover { background: var(--color-danger-light); color: var(--color-danger); }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.73rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: opacity var(--duration-fast) var(--ease); }
+.badge:active { opacity: 0.7; }
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.badge-notstarted { background: var(--color-muted-status-light); color: var(--color-muted-status); }
+.badge-notstarted::before { background: var(--color-muted-status); }
+.badge-inprogress { background: var(--color-primary-light); color: var(--color-primary); }
+.badge-inprogress::before { background: var(--color-primary); }
+.badge-review { background: var(--color-warning-light); color: #96690F; }
+.badge-review::before { background: var(--color-warning); }
+.badge-done { background: var(--color-success-light); color: #1F7A5C; }
+.badge-done::before { background: var(--color-success); }
+.badge-hold { background: var(--color-hold-light); color: var(--color-hold); }
+.badge-hold::before { background: var(--color-hold); }
+.badge-cancelled { background: var(--color-cancel-light); color: var(--color-cancel); }
+.badge-cancelled::before { background: var(--color-cancel); }
+
+/* Priority Badges */
+.priority { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; white-space: nowrap; letter-spacing: 0.02em; cursor: pointer; transition: opacity var(--duration-fast) var(--ease); }
+.priority:active { opacity: 0.7; }
+.priority-urgent { background: var(--color-urgent-light); color: var(--color-urgent); }
+.priority-high { background: var(--color-high-light); color: var(--color-high); }
+.priority-medium { background: var(--color-medium-light); color: #8C6D00; }
+.priority-low { background: var(--color-low-light); color: var(--color-low); }
+
+/* Task Cards (Mobile) */
+.task-cards { display: none; }
+.task-card { background: var(--color-surface); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 14px 14px 14px 38px; margin-bottom: 10px; box-shadow: var(--shadow-xs); transition: all var(--duration) var(--ease); position: relative; }
+.task-card:active { transform: scale(0.99); }
+.task-card.touch-dragging { opacity: 0.85; box-shadow: var(--shadow-lg); z-index: 70; transform: scale(1.02); }
+.task-card.touch-drag-over { border-top: 3px solid var(--color-primary); }
+.card-drag-handle { display: none; }
+.task-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
+.task-card-title { font-weight: 700; font-size: 0.95rem; line-height: 1.4; flex: 1; }
+.task-card-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.task-card-meta { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 0.8rem; color: var(--color-text-secondary); }
+.task-card-meta dt { font-weight: 600; color: var(--color-text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.task-card-meta dd { margin: 0; }
+.task-card-notes { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--color-border-light); font-size: 0.8rem; color: var(--color-text-secondary); max-height: 3.2em; overflow: hidden; position: relative; cursor: pointer; }
+.task-card-notes.expanded { max-height: none; }
+.task-card-notes:not(.expanded)::after { content: '...もっと見る'; position: absolute; bottom: 0; right: 0; background: linear-gradient(90deg, transparent, var(--color-surface) 40%); padding-left: 24px; font-size: 0.72rem; color: var(--color-primary); font-weight: 600; }
+.task-card-actions { display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end; }
+.task-card-actions button { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 600; cursor: pointer; min-height: 40px; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(27,42,61,0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: all 0.25s ease; }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-overlay.active .modal { transform: translateY(0) scale(1); opacity: 1; }
+.modal { background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); width: 100%; max-width: 540px; max-height: 90dvh; overflow-y: auto; transform: translateY(16px) scale(0.98); opacity: 0; transition: all var(--duration-slow) cubic-bezier(0.34, 1.4, 0.64, 1); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; }
+.modal-header h2 { font-size: 1.1rem; font-weight: 700; color: var(--color-accent); }
+.modal-close { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); transition: all var(--duration) var(--ease); cursor: pointer; min-width: 44px; min-height: 44px; }
+.modal-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.modal-body { padding: 20px 24px; }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 24px 20px; border-top: 1px solid var(--color-border-light); }
+
+/* Form */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); outline: none; transition: all var(--duration) var(--ease); min-height: 44px; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px var(--color-primary-light); }
+.form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%234A5E74' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Member Management */
+.member-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.member-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--color-surface-alt); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); font-size: 0.9rem; font-weight: 500; }
+.member-item .member-name { display: flex; align-items: center; gap: 8px; }
+.member-item .member-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--color-primary-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; }
+.member-item .member-count { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 4px; }
+.member-remove { width: 30px; height: 30px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); transition: all var(--duration) var(--ease); cursor: pointer; min-width: 44px; min-height: 44px; }
+.member-remove:hover { background: var(--color-danger-light); color: var(--color-danger); }
+.member-add-row { display: flex; gap: 8px; }
+.member-add-row input { flex: 1; }
+
+/* Confirm Dialog */
+.confirm-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(27,42,61,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: all var(--duration) ease; }
+.confirm-overlay.active { opacity: 1; visibility: visible; }
+.confirm-dialog { background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); padding: 24px; width: 100%; max-width: 380px; text-align: center; }
+.confirm-dialog h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--color-accent); }
+.confirm-dialog p { font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 20px; line-height: 1.6; }
+.confirm-actions { display: flex; gap: 10px; justify-content: center; }
+
+/* Inline Picker (bottom sheet) */
+.inline-picker-overlay { position: fixed; inset: 0; z-index: 90; background: rgba(27,42,61,0.3); opacity: 0; visibility: hidden; transition: all var(--duration) var(--ease); }
+.inline-picker-overlay.active { opacity: 1; visibility: visible; }
+.inline-picker { position: absolute; bottom: 0; left: 0; right: 0; background: var(--color-surface); border-radius: var(--radius-xl) var(--radius-xl) 0 0; padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); transform: translateY(100%); transition: transform var(--duration-slow) cubic-bezier(0.32, 0.72, 0, 1); max-height: 60dvh; overflow-y: auto; }
+.inline-picker-overlay.active .inline-picker { transform: translateY(0); }
+.inline-picker::before { content: ''; display: block; width: 36px; height: 4px; background: var(--color-border); border-radius: 2px; margin: 0 auto 12px; }
+.inline-picker-title { font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; text-align: center; }
+.inline-picker-option { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius-md); font-size: 0.95rem; font-weight: 500; cursor: pointer; min-height: 48px; transition: background var(--duration-fast) var(--ease); }
+.inline-picker-option:active { background: var(--color-surface-hover); }
+.inline-picker-option.selected { background: var(--color-primary-light); font-weight: 700; }
+.inline-picker-option .picker-badge { pointer-events: none; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-state svg { color: var(--color-primary-bg); margin-bottom: 16px; }
+.empty-state h3 { font-size: 1.05rem; color: var(--color-text-secondary); margin-bottom: 6px; }
+.empty-state p { font-size: 0.85rem; color: var(--color-text-muted); }
+
+/* Toast */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--color-accent); color: var(--color-text-inverse); padding: 12px 20px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-lg); transform: translateX(120%); transition: transform var(--duration-slow) cubic-bezier(0.34, 1.4, 0.64, 1); }
+.toast.show { transform: translateX(0); }
+
+/* Utility Bar */
+.util-bar { display: flex; gap: 8px; justify-content: flex-end; margin-bottom: 12px; position: relative; }
+.util-overflow-trigger { display: none; }
+.util-overflow-menu { display: contents; }
+
+/* FAB (Mobile) */
+.fab { display: none; position: fixed; bottom: 24px; right: 24px; z-index: 60; width: 56px; height: 56px; background: linear-gradient(135deg, var(--color-primary), var(--color-accent-light)); color: var(--color-text-inverse); border-radius: 50%; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(59,111,192,0.4); transition: all var(--duration) var(--ease); cursor: pointer; }
+.fab:hover { transform: scale(1.08); }
+.fab:active { transform: scale(0.95); }
+
+/* ============================================
+   Responsive — Mobile
+   ============================================ */
+@media (max-width: 768px) {
+  html { font-size: 14px; }
+  .app { padding: 0 12px 120px; }
+  .header-inner { padding: 12px 16px; }
+  .header h1 { font-size: 1.05rem; }
+  .header .btn-add-desktop { display: none; }
+  .header .btn-member-desktop { display: none; }
+  .fab { display: flex; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); }
+
+  /* Stats: horizontal scroll strip */
+  .stats { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin: 12px 0; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .stats::-webkit-scrollbar { display: none; }
+  .stat-card { flex: 0 0 auto; min-width: 88px; padding: 8px 12px; scroll-snap-align: start; text-align: center; }
+  .stat-value { font-size: 1.15rem; }
+  .stat-label { font-size: 0.62rem; }
+
+  /* Toolbar: search always visible, filters collapsible */
+  .toolbar { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .search-box { flex: 1; min-width: 0; }
+  .toolbar-filter-toggle { display: inline-flex; flex-shrink: 0; min-height: 44px; padding: 8px 14px; font-size: 0.8rem; font-weight: 600; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text-secondary); gap: 6px; align-items: center; cursor: pointer; transition: all var(--duration) var(--ease); }
+  .toolbar-filter-toggle.has-active { background: var(--color-primary-light); color: var(--color-primary); border-color: var(--color-primary); }
+  .toolbar-filters { display: none; width: 100%; flex-direction: column; gap: 8px; }
+  .toolbar-filters.open { display: flex; }
+  .filter-select { width: 100%; }
+
+  /* Table hidden, cards shown */
+  .task-table-wrap { display: none; }
+  .task-cards { display: block; }
+
+  /* Card: drag handle visible */
+  .task-card { padding: 14px 14px 14px 38px; }
+  .card-drag-handle { display: flex; align-items: center; justify-content: center; position: absolute; left: 0; top: 0; bottom: 0; width: 34px; touch-action: none; color: var(--color-text-muted); opacity: 0.35; cursor: grab; }
+
+  /* Form stacking */
+  .form-row { grid-template-columns: 1fr; }
+
+  /* Modal: full-screen bottom sheet */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { max-width: 100%; max-height: 100vh; max-height: 100dvh; height: 100vh; height: 100dvh; border-radius: 0; transform: translateY(100%); opacity: 1; transition: transform var(--duration-slow) cubic-bezier(0.32, 0.72, 0, 1); display: flex; flex-direction: column; }
+  .modal-overlay.active .modal { transform: translateY(0); scale: 1; }
+  .modal::before { content: ''; display: block; width: 36px; height: 4px; background: var(--color-border); border-radius: 2px; margin: 8px auto 0; flex-shrink: 0; }
+  .modal-header { flex-shrink: 0; position: sticky; top: 0; background: var(--color-surface); z-index: 1; border-bottom: 1px solid var(--color-border-light); padding: 12px 18px; }
+  .modal-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 18px; }
+  .modal-footer { flex-shrink: 0; position: sticky; bottom: 0; background: var(--color-surface); z-index: 1; padding: 12px 18px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+
+  /* Util bar: overflow menu */
+  .util-overflow-trigger { display: inline-flex; padding: 8px 14px; font-size: 0.8rem; font-weight: 600; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text-secondary); gap: 6px; align-items: center; cursor: pointer; min-height: 40px; }
+  .util-overflow-menu { display: none; position: absolute; bottom: calc(100% + 8px); right: 0; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); padding: 8px; flex-direction: column; gap: 4px; min-width: 170px; z-index: 55; }
+  .util-overflow-menu.open { display: flex; }
+  .util-overflow-menu .btn { width: 100%; justify-content: flex-start; font-size: 0.82rem; }
+
+  /* Toast */
+  .toast-container { bottom: calc(env(safe-area-inset-bottom, 0px) + 90px); right: 16px; left: 16px; }
+  .toast { text-align: center; }
+}
+
+/* Print */
+@media print {
+  .header, .toolbar, .util-bar, .fab, .row-actions, .task-card-actions, .toast-container, .inline-picker-overlay { display: none !important; }
+  .task-table-wrap { display: block !important; box-shadow: none; border: 1px solid #ccc; }
+  .task-cards { display: none !important; }
+  body { background: #fff; }
+  .app { max-width: none; padding: 0; }
+}
+
+/* Scrollbar & Selection */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 3px; }
+::selection { background: var(--color-primary-bg); color: var(--color-primary-hover); }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* iOS Safari: ensure tap events fire on delegated containers */
+.task-cards, .task-card-actions, .inline-picker-options, .member-list, .confirm-actions { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <h1>
+      <span class="logo-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="12" height="12" rx="2"/><line x1="5" y1="6" x2="11" y2="6"/><line x1="5" y1="9" x2="9" y2="9"/></svg></span>
+      メンバータスク管理
+    </h1>
+    <div class="header-actions">
+      <button class="btn-ghost btn-member-desktop" id="btnMemberManage" aria-label="メンバー管理"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10" cy="7" r="3.5"/><path d="M3 17c0-3 3-5 7-5s7 2 7 5"/><line x1="16" y1="4" x2="16" y2="10"/><line x1="13" y1="7" x2="19" y2="7"/></svg></button>
+      <button class="btn btn-primary btn-add-desktop" id="btnAddTask"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg> タスク追加</button>
+    </div>
+  </div>
+</header>
+
+<main class="app">
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><line x1="10.2" y1="10.2" x2="14" y2="14"/></svg>
+      <input type="text" id="searchInput" placeholder="タスク名・備考を検索...">
+    </div>
+    <button class="toolbar-filter-toggle" id="btnFilterToggle">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="12" y2="4"/><line x1="4" y1="7" x2="10" y2="7"/><line x1="6" y1="10" x2="8" y2="10"/></svg>
+      <span id="filterToggleLabel">フィルター</span>
+    </button>
+    <div class="toolbar-filters" id="toolbarFilters">
+      <select class="filter-select" id="filterStatus">
+        <option value="">全ステータス</option>
+        <option value="未着手">未着手</option><option value="進行中">進行中</option><option value="確認待ち">確認待ち</option><option value="完了">���了</option><option value="保留">保留</option><option value="中止">中止</option>
+      </select>
+      <select class="filter-select" id="filterPriority">
+        <option value="">全優先度</option>
+        <option value="緊急対応">緊急対応</option><option value="優先大">優先大</option><option value="優先中">優先中</option><option value="優先小">優先小</option>
+      </select>
+      <select class="filter-select" id="filterAssignee">
+        <option value="">全担当者</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="util-bar">
+    <button class="util-overflow-trigger" id="btnUtilOverflow">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="3" cy="8" r="1"/><circle cx="8" cy="8" r="1"/><circle cx="13" cy="8" r="1"/></svg>
+      操作
+    </button>
+    <div class="util-overflow-menu" id="utilOverflowMenu">
+      <button class="btn btn-secondary btn-sm" id="btnMemberMobile"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="7" cy="5" r="2.5"/><path d="M2 13c0-2.5 2-4 5-4s5 1.5 5 4"/></svg> メンバー管理</button>
+      <button class="btn btn-secondary btn-sm" id="btnExportCSV"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l4 4 4-4M7 13V3"/></svg> CSV出力</button>
+      <button class="btn btn-secondary btn-sm" id="btnExportJSON"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l4 4 4-4M7 13V3"/></svg> バックアップ</button>
+      <label class="btn btn-secondary btn-sm" style="margin:0;cursor:pointer"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5l4-4 4 4M7 1v10"/></svg> 復元<input type="file" accept=".json" id="importFile" style="display:none"></label>
+    </div>
+  </div>
+
+  <div class="task-table-wrap">
+    <table class="task-table">
+      <thead><tr>
+        <th data-sort="title">タスク名 <span class="sort-icon">&#9650;&#9660;</span></th>
+        <th class="col-priority" data-sort="priority">優先度 <span class="sort-icon">&#9650;&#9660;</span></th>
+        <th class="col-assignee" data-sort="assignee">担当 <span class="sort-icon">&#9650;&#9660;</span></th>
+        <th class="col-status" data-sort="status">ステータス <span class="sort-icon">&#9650;&#9660;</span></th>
+        <th class="col-date" data-sort="occurredDate">発生日 <span class="sort-icon">&#9650;&#9660;</span></th>
+        <th class="col-date" data-sort="deadline">期限 <span class="sort-icon">&#9650;&#9660;</span></th>
+        <th>備考</th>
+        <th class="col-actions"></th>
+      </tr></thead>
+      <tbody id="taskTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="task-cards" id="taskCards"></div>
+
+  <div class="empty-state" id="emptyState" style="display:none">
+    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="8" y="6" width="32" height="36" rx="4"/><line x1="16" y1="16" x2="32" y2="16"/><line x1="16" y1="24" x2="28" y2="24"/><line x1="16" y1="32" x2="24" y2="32"/></svg>
+    <h3>タスクがありません</h3>
+    <p>「タスク追加」ボタンで最初のタスクを登録しましょう</p>
+  </div>
+</main>
+
+<button class="fab" id="fabAdd" aria-label="タスク追加"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+
+<!-- Task Modal -->
+<div class="modal-overlay" id="taskModalOverlay">
+  <div class="modal" id="taskModal">
+    <div class="modal-header">
+      <h2 id="modalTitle">タスク追加</h2>
+      <button class="modal-close" id="modalClose" aria-label="閉じる"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="4" x2="14" y2="14"/><line x1="14" y1="4" x2="4" y2="14"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="taskId">
+      <div class="form-group"><label class="form-label" for="taskTitle">タスク名 *</label><input class="form-input" type="text" id="taskTitle" placeholder="タスクの内容を入力" required></div>
+      <div class="form-row"><div class="form-group"><label class="form-label" for="taskAssignee">担当者 *</label><select class="form-select" id="taskAssignee"></select></div><div class="form-group"><label class="form-label" for="taskPriority">優先度</label><select class="form-select" id="taskPriority"><option value="優先中">優先中</option><option value="緊急対応">緊急対応</option><option value="優先大">優先大</option><option value="優先小">優先小</option></select></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label" for="taskStatus">ステータス</label><select class="form-select" id="taskStatus"><option value="未着手">未着手</option><option value="進行中">進行中</option><option value="確認待ち">確認待ち</option><option value="完了">完了</option><option value="保留">保留</option><option value="中止">中止</option></select></div><div class="form-group"><label class="form-label" for="taskOccurredDate">タスク発生日</label><input class="form-input" type="date" id="taskOccurredDate"></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label" for="taskDeadline">完了期限</label><input class="form-input" type="date" id="taskDeadline"></div><div class="form-group"></div></div>
+      <div class="form-group"><label class="form-label" for="taskNotes">備考</label><textarea class="form-textarea" id="taskNotes" placeholder="メモや補足情報を記入"></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" id="modalCancel">キャンセル</button><button class="btn btn-primary-fill" id="saveBtn">保存</button></div>
+  </div>
+</div>
+
+<!-- Member Modal -->
+<div class="modal-overlay" id="memberModalOverlay">
+  <div class="modal" id="memberModal">
+    <div class="modal-header"><h2>メンバー管理</h2><button class="modal-close" id="memberModalClose" aria-label="閉じる"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="4" x2="14" y2="14"/><line x1="14" y1="4" x2="4" y2="14"/></svg></button></div>
+    <div class="modal-body">
+      <p style="font-size:0.85rem;color:var(--color-text-secondary);margin-bottom:16px;">担当者の追加・削除ができます。</p>
+      <div class="member-list" id="memberList"></div>
+      <div class="member-add-row"><input class="form-input" type="text" id="newMemberName" placeholder="新しいメンバー名を入力"><button class="btn btn-primary-fill btn-sm" id="btnAddMember">追加</button></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" id="memberModalDone">閉じる</button></div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <h3 id="confirmTitle">タスクを削除</h3>
+    <p id="confirmMessage">このタスクを削除してもよろしいですか？<br>この操作は取り消せません。</p>
+    <input type="hidden" id="confirmTargetId"><input type="hidden" id="confirmAction">
+    <div class="confirm-actions"><button class="btn btn-secondary" id="confirmCancel">キャンセル</button><button class="btn btn-danger-fill" id="confirmOk">削除する</button></div>
+  </div>
+</div>
+
+<!-- Inline Picker (bottom sheet) -->
+<div class="inline-picker-overlay" id="inlinePickerOverlay">
+  <div class="inline-picker" id="inlinePicker">
+    <div class="inline-picker-title" id="inlinePickerTitle"></div>
+    <div class="inline-picker-options" id="inlinePickerOptions"></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  var STORAGE_KEY = 'ykc_member_tasks';
+  var MEMBERS_KEY = 'ykc_members';
+  var DEFAULT_MEMBERS = ['上野', '長岡（裕也）', '長堀', '長岡（祐生）', '藤谷', '広田', '樋口'];
+  var PRIORITY_LIST = ['緊急対応', '優先大', '優先中', '優先小'];
+  var PRIORITY_CLASSES = { '緊急対応': 'priority-urgent', '優先大': 'priority-high', '優先中': 'priority-medium', '優先小': 'priority-low' };
+  var STATUS_LIST = ['未着手', '進行中', '確認待ち', '完了', '保留', '中止'];
+  var STATUS_CLASSES = { '未着手': 'badge-notstarted', '進行中': 'badge-inprogress', '確認待ち': 'badge-review', '完了': 'badge-done', '保留': 'badge-hold', '中止': 'badge-cancelled' };
+
+  var tasks = [];
+  var members = [];
+  var currentSort = { key: 'deadline', dir: 'asc' };
+
+  var $ = function(id) { return document.getElementById(id); };
+
+  function init() { loadMembers(); loadTasks(); populateAssigneeSelects(); renderStats(); renderTasks(); bindEvents(); }
+  function loadTasks() { try { var r = localStorage.getItem(STORAGE_KEY); tasks = r ? JSON.parse(r) : []; } catch(e) { tasks = []; } }
+  function saveTasks() { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); }
+  function loadMembers() { try { var r = localStorage.getItem(MEMBERS_KEY); members = r ? JSON.parse(r) : DEFAULT_MEMBERS.slice(); } catch(e) { members = DEFAULT_MEMBERS.slice(); } }
+  function saveMembers() { localStorage.setItem(MEMBERS_KEY, JSON.stringify(members)); }
+  function generateId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function today() { return new Date().toISOString().slice(0, 10); }
+  function formatDate(d) { if (!d) return '\u2014'; var p = d.split('-'); return p[1] + '/' + p[2]; }
+  function isOverdue(t) { return t.deadline && t.status !== '完了' && t.status !== '中止' && t.deadline < today(); }
+
+  function populateAssigneeSelects() {
+    var fs = $('filterAssignee'), fm = $('taskAssignee');
+    var cf = fs.value, cm = fm.value;
+    while (fs.options.length > 1) fs.remove(1);
+    while (fm.options.length > 0) fm.remove(0);
+    members.forEach(function(m) { fs.appendChild(new Option(m, m)); fm.appendChild(new Option(m, m)); });
+    if (cf && members.indexOf(cf) >= 0) fs.value = cf;
+    if (cm && members.indexOf(cm) >= 0) fm.value = cm;
+  }
+
+  function renderStats() {
+    var counts = { total: tasks.length }; STATUS_LIST.forEach(function(s) { counts[s] = 0; }); tasks.forEach(function(t) { if (counts[t.status] !== undefined) counts[t.status]++; });
+    var keys = ['total', '未着手', '進行中', '確認待ち', '完了', '保留'];
+    var labels = { total: '全タスク', '未着手': '未着手', '進行中': '進行中', '確認待ち': '確認待ち', '完了': '完了', '保留': '保留' };
+    var cls = { total: 'stat-total', '未着手': 'stat-notstarted', '進行中': 'stat-inprogress', '確認待ち': 'stat-review', '完了': 'stat-done', '保留': 'stat-hold' };
+    $('stats').innerHTML = keys.map(function(k) { return '<div class="stat-card ' + cls[k] + '"><div class="stat-label">' + labels[k] + '</div><div class="stat-value">' + counts[k] + '</div></div>'; }).join('');
+  }
+
+  function getFilteredTasks() {
+    var q = $('searchInput').value.toLowerCase(), st = $('filterStatus').value, pr = $('filterPriority').value, as = $('filterAssignee').value;
+    return tasks.filter(function(t) { if (st && t.status !== st) return false; if (pr && t.priority !== pr) return false; if (as && t.assignee !== as) return false; if (q && (t.title + ' ' + (t.notes || '')).toLowerCase().indexOf(q) === -1) return false; return true; });
+  }
+
+  function sortTasks(list) {
+    var key = currentSort.key, dir = currentSort.dir === 'asc' ? 1 : -1;
+    if (key === 'manual') return list.slice().sort(function(a, b) { return (a.sortOrder !== undefined ? a.sortOrder : 9999) - (b.sortOrder !== undefined ? b.sortOrder : 9999); });
+    if (key === 'status') { var o = {}; STATUS_LIST.forEach(function(s, i) { o[s] = i; }); return list.slice().sort(function(a, b) { return (o[a.status] - o[b.status]) * dir; }); }
+    if (key === 'priority') { var p = {}; PRIORITY_LIST.forEach(function(s, i) { p[s] = i; }); return list.slice().sort(function(a, b) { return ((p[a.priority] !== undefined ? p[a.priority] : 99) - (p[b.priority] !== undefined ? p[b.priority] : 99)) * dir; }); }
+    return list.slice().sort(function(a, b) { var va = a[key] || '', vb = b[key] || ''; return va < vb ? -1 * dir : va > vb ? 1 * dir : 0; });
+  }
+
+  /* Drag handle SVG */
+  var GRIP_SVG = '<svg width="10" height="16" fill="currentColor" viewBox="0 0 10 16"><circle cx="3" cy="2" r="1.2"/><circle cx="7" cy="2" r="1.2"/><circle cx="3" cy="8" r="1.2"/><circle cx="7" cy="8" r="1.2"/><circle cx="3" cy="14" r="1.2"/><circle cx="7" cy="14" r="1.2"/></svg>';
+
+  function renderTasks() {
+    var filtered = sortTasks(getFilteredTasks());
+    renderStats(); updateFilterToggle();
+    var empty = $('emptyState'), tableWrap = document.querySelector('.task-table-wrap'), cardsWrap = $('taskCards');
+    if (filtered.length === 0) { empty.style.display = 'block'; tableWrap.style.display = 'none'; cardsWrap.style.display = 'none'; }
+    else { empty.style.display = 'none'; tableWrap.style.display = ''; cardsWrap.style.display = ''; }
+
+    /* Table */
+    $('taskTableBody').innerHTML = filtered.map(function(t) {
+      var dc = isOverdue(t) ? ' overdue' : '';
+      return '<tr draggable="true" data-id="' + t.id + '">' +
+        '<td class="task-title-cell">' + esc(t.title) + '</td>' +
+        '<td class="col-priority"><span class="priority ' + (PRIORITY_CLASSES[t.priority] || 'priority-medium') + '">' + esc(t.priority || '優先中') + '</span></td>' +
+        '<td>' + esc(t.assignee) + '</td>' +
+        '<td class="col-status"><span class="badge ' + STATUS_CLASSES[t.status] + '">' + t.status + '</span></td>' +
+        '<td class="task-date">' + formatDate(t.occurredDate) + '</td>' +
+        '<td class="task-date' + dc + '">' + formatDate(t.deadline) + (isOverdue(t) ? ' !' : '') + '</td>' +
+        '<td class="task-notes" title="' + escAttr(t.notes || '') + '">' + esc(t.notes || '') + '</td>' +
+        '<td class="col-actions"><div class="row-actions">' +
+          '<button class="btn-edit" title="編集" data-action="edit" data-id="' + t.id + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.5 2.5l2 2L5 12H3v-2l7.5-7.5z"/></svg></button>' +
+          '<button class="btn-del" title="削除" data-action="delete" data-id="' + t.id + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="5" x2="12" y2="5"/><path d="M5 5V3.5a1 1 0 011-1h3a1 1 0 011 1V5M10.5 5v7a1.5 1.5 0 01-1.5 1.5H6A1.5 1.5 0 014.5 12V5"/></svg></button>' +
+        '</div></td></tr>';
+    }).join('');
+
+    /* Cards */
+    cardsWrap.innerHTML = filtered.map(function(t) {
+      var dc = isOverdue(t) ? ' overdue' : '';
+      return '<div class="task-card" data-id="' + t.id + '">' +
+        '<div class="card-drag-handle">' + GRIP_SVG + '</div>' +
+        '<div class="task-card-header"><div class="task-card-title">' + esc(t.title) + '</div></div>' +
+        '<div class="task-card-badges">' +
+          '<span class="priority ' + (PRIORITY_CLASSES[t.priority] || 'priority-medium') + ' card-inline-edit" data-field="priority" data-id="' + t.id + '">' + esc(t.priority || '優先中') + '</span>' +
+          '<span class="badge ' + STATUS_CLASSES[t.status] + ' card-inline-edit" data-field="status" data-id="' + t.id + '">' + t.status + '</span>' +
+        '</div>' +
+        '<dl class="task-card-meta">' +
+          '<dt>担当</dt><dd>' + esc(t.assignee) + '</dd>' +
+          '<dt>発生日</dt><dd>' + formatDate(t.occurredDate) + '</dd>' +
+          '<dt>期限</dt><dd class="' + dc + '">' + formatDate(t.deadline) + (isOverdue(t) ? ' (期限超過)' : '') + '</dd>' +
+          '<dt>入力日</dt><dd>' + formatDate(t.inputDate) + '</dd>' +
+        '</dl>' +
+        (t.notes ? '<div class="task-card-notes">' + esc(t.notes) + '</div>' : '') +
+        '<div class="task-card-actions">' +
+          '<button class="btn btn-secondary btn-sm" data-action="edit" data-id="' + t.id + '">編集</button>' +
+          '<button class="btn btn-danger-outline btn-sm" data-action="delete" data-id="' + t.id + '">削除</button>' +
+        '</div></div>';
+    }).join('');
+
+    /* Mark truncated notes */
+    cardsWrap.querySelectorAll('.task-card-notes').forEach(function(el) {
+      if (el.scrollHeight <= el.offsetHeight) el.classList.add('expanded');
+    });
+  }
+
+  /* Filter toggle indicator */
+  function updateFilterToggle() {
+    var count = ($('filterStatus').value ? 1 : 0) + ($('filterPriority').value ? 1 : 0) + ($('filterAssignee').value ? 1 : 0);
+    var btn = $('btnFilterToggle');
+    $('filterToggleLabel').textContent = count > 0 ? 'フィルター (' + count + ')' : 'フィルター';
+    btn.classList.toggle('has-active', count > 0);
+  }
+
+  /* ── Inline Picker (bottom sheet for status/priority) ── */
+  var pickerTaskId = null, pickerField = null;
+
+  function openInlinePicker(taskId, field) {
+    var task = tasks.find(function(t) { return t.id === taskId; });
+    if (!task) return;
+    pickerTaskId = taskId; pickerField = field;
+    var list = field === 'priority' ? PRIORITY_LIST : STATUS_LIST;
+    var classes = field === 'priority' ? PRIORITY_CLASSES : STATUS_CLASSES;
+    var current = field === 'priority' ? (task.priority || '優先中') : task.status;
+    var badgeClass = field === 'priority' ? 'priority' : 'badge';
+
+    $('inlinePickerTitle').textContent = field === 'priority' ? '優先度を変更' : 'ステータスを変更';
+    $('inlinePickerOptions').innerHTML = list.map(function(v) {
+      return '<div class="inline-picker-option' + (v === current ? ' selected' : '') + '" data-value="' + escAttr(v) + '">' +
+        '<span class="picker-badge ' + badgeClass + ' ' + (classes[v] || '') + '">' + v + '</span>' +
+      '</div>';
+    }).join('');
+    $('inlinePickerOverlay').classList.add('active');
+  }
+
+  function closeInlinePicker() { $('inlinePickerOverlay').classList.remove('active'); pickerTaskId = null; pickerField = null; }
+
+  function applyInlinePick(value) {
+    if (!pickerTaskId || !pickerField) return;
+    tasks = tasks.map(function(t) {
+      if (t.id !== pickerTaskId) return t;
+      var upd = {}; upd[pickerField] = value; upd.updatedAt = new Date().toISOString();
+      return Object.assign({}, t, upd);
+    });
+    saveTasks(); renderTasks(); closeInlinePicker();
+    showToast((pickerField === 'priority' ? '優先度' : 'ステータス') + 'を変更しました');
+  }
+
+  /* ── Member Management ── */
+  function renderMemberList() {
+    $('memberList').innerHTML = members.map(function(m) {
+      var count = tasks.filter(function(t) { return t.assignee === m; }).length;
+      return '<div class="member-item"><div class="member-name"><span class="member-avatar">' + esc(m.charAt(0)) + '</span><span>' + esc(m) + '</span><span class="member-count">(' + count + '件)</span></div>' +
+        '<button class="member-remove" data-action="remove-member" data-name="' + escAttr(m) + '" aria-label="' + escAttr(m) + 'を削除"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"/><line x1="11" y1="3" x2="3" y2="11"/></svg></button></div>';
+    }).join('');
+  }
+  function addMember(name) { name = name.trim(); if (!name) { showToast('メンバー名を入力してください'); return; } if (members.indexOf(name) >= 0) { showToast('既に登録されています'); return; } members = members.concat([name]); saveMembers(); populateAssigneeSelects(); renderMemberList(); $('newMemberName').value = ''; showToast(name + 'を追加しました'); }
+  function removeMember(name) {
+    var count = tasks.filter(function(t) { return t.assignee === name; }).length;
+    if (count > 0) { $('confirmTitle').textContent = 'メンバーを削除'; $('confirmMessage').innerHTML = '<strong>' + esc(name) + '</strong> には ' + count + '件のタスクが割り当てられています。<br>削除してもよろしいですか？'; $('confirmTargetId').value = name; $('confirmAction').value = 'remove-member'; $('confirmOk').textContent = '削除する'; $('confirmOverlay').classList.add('active'); }
+    else { executeRemoveMember(name); }
+  }
+  function executeRemoveMember(name) { members = members.filter(function(m) { return m !== name; }); saveMembers(); populateAssigneeSelects(); renderMemberList(); showToast(name + 'を削除しました'); }
+
+  /* ── Task Modal ── */
+  function openAddModal() { $('taskId').value = ''; $('taskTitle').value = ''; if (members.length > 0) $('taskAssignee').value = members[0]; $('taskPriority').value = '優先中'; $('taskStatus').value = '未着手'; $('taskOccurredDate').value = today(); $('taskDeadline').value = ''; $('taskNotes').value = ''; $('modalTitle').textContent = 'タスク追加'; $('saveBtn').textContent = '追加する'; openOverlay('taskModalOverlay'); setTimeout(function() { $('taskTitle').focus(); }, 250); }
+  function openEditModal(id) { var t = tasks.find(function(t) { return t.id === id; }); if (!t) return; $('taskId').value = t.id; $('taskTitle').value = t.title; $('taskAssignee').value = t.assignee; $('taskPriority').value = t.priority || '優先中'; $('taskStatus').value = t.status; $('taskOccurredDate').value = t.occurredDate || ''; $('taskDeadline').value = t.deadline || ''; $('taskNotes').value = t.notes || ''; $('modalTitle').textContent = 'タスク編集'; $('saveBtn').textContent = '更新する'; openOverlay('taskModalOverlay'); setTimeout(function() { $('taskTitle').focus(); }, 250); }
+  function saveTask() {
+    var title = $('taskTitle').value.trim(); if (!title) { $('taskTitle').focus(); showToast('タスク名を入力してください'); return; }
+    var assignee = $('taskAssignee').value; if (!assignee) { showToast('担当者を選択してください'); return; }
+    var data = { title: title, assignee: assignee, priority: $('taskPriority').value, status: $('taskStatus').value, occurredDate: $('taskOccurredDate').value || '', deadline: $('taskDeadline').value || '', notes: $('taskNotes').value.trim() };
+    var id = $('taskId').value;
+    if (id) { tasks = tasks.map(function(t) { return t.id !== id ? t : Object.assign({}, t, data, { updatedAt: new Date().toISOString() }); }); showToast('タスクを更新しました'); }
+    else { tasks = [Object.assign({ id: generateId(), inputDate: today(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, data)].concat(tasks); showToast('タスクを追加しました'); }
+    saveTasks(); renderTasks(); closeOverlay('taskModalOverlay');
+  }
+
+  /* ── Delete ─��� */
+  function openDeleteConfirm(id) { $('confirmTitle').textContent = 'タスクを削除'; $('confirmMessage').innerHTML = 'このタスクを削除してもよろしいですか？<br>この操作は取り消せません。'; $('confirmTargetId').value = id; $('confirmAction').value = 'delete-task'; $('confirmOk').textContent = '削除する'; $('confirmOverlay').classList.add('active'); }
+  function executeDelete() {
+    var action = $('confirmAction').value, target = $('confirmTargetId').value;
+    if (action === 'delete-task') { tasks = tasks.filter(function(t) { return t.id !== target; }); saveTasks(); renderTasks(); showToast('タスクを削除しました'); }
+    else if (action === 'remove-member') { executeRemoveMember(target); }
+    $('confirmOverlay').classList.remove('active');
+  }
+
+  function openOverlay(id) { $(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+  function closeOverlay(id) { $(id).classList.remove('active'); document.body.style.overflow = ''; }
+
+  /* ── Export / Import ── */
+  function exportCSV() {
+    var bom = '\uFEFF', header = ['タスク名','優先度','担当者','ステータス','発生日','入力日','期限','備考'];
+    var rows = tasks.map(function(t) { return [t.title, t.priority || '優先中', t.assignee, t.status, t.occurredDate || '', t.inputDate || '', t.deadline || '', (t.notes || '').replace(/"/g, '""')].map(function(v) { return '"' + v + '"'; }).join(','); });
+    downloadFile(bom + header.join(',') + '\n' + rows.join('\n'), 'tasks_' + today() + '.csv', 'text/csv;charset=utf-8'); showToast('CSVをエクスポートしました');
+  }
+  function exportJSON() { downloadFile(JSON.stringify({ members: members, tasks: tasks }, null, 2), 'tasks_backup_' + today() + '.json', 'application/json'); showToast('バックアップを保存しました'); }
+  function importJSON(e) {
+    var file = e.target.files[0]; if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) { try { var data = JSON.parse(ev.target.result); if (Array.isArray(data)) { tasks = data; } else if (data && Array.isArray(data.tasks)) { tasks = data.tasks; if (Array.isArray(data.members) && data.members.length > 0) { members = data.members; saveMembers(); populateAssigneeSelects(); } } else { throw new Error('Invalid'); } saveTasks(); renderTasks(); showToast(tasks.length + '件のタスクを復元しました'); } catch(err) { showToast('ファイル形式が正しくありません'); } };
+    reader.readAsText(file); e.target.value = '';
+  }
+  function downloadFile(content, filename, mime) { var blob = new Blob([content], { type: mime }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+
+  function showToast(msg) { var c = $('toastContainer'), t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; c.appendChild(t); requestAnimationFrame(function() { t.classList.add('show'); }); setTimeout(function() { t.classList.remove('show'); setTimeout(function() { t.remove(); }, 300); }, 2500); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function escAttr(s) { return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ── Mobile-safe tap utility ─��� */
+  /* iOS Safari doesn't reliably fire click on delegated/dynamic elements.
+     onTap: uses touchend (primary on touch) + click (fallback/desktop) with dedup. */
+  var _tapLock = false;
+  function onTap(el, handler) {
+    if (!el) return;
+    el.addEventListener('touchend', function(e) {
+      if (_tapLock) return;
+      _tapLock = true;
+      setTimeout(function() { _tapLock = false; }, 300);
+      handler.call(el, e);
+    }, { passive: true });
+    el.addEventListener('click', function(e) {
+      if (_tapLock) return;
+      handler.call(el, e);
+    });
+  }
+  /* onTapDelegate: delegated version for dynamic content in a container */
+  function onTapDelegate(container, selector, handler) {
+    if (!container) return;
+    function resolve(e) {
+      var target = e.target.closest(selector);
+      if (target && container.contains(target)) return target;
+      return null;
+    }
+    container.addEventListener('touchend', function(e) {
+      var t = resolve(e);
+      if (!t || _tapLock) return;
+      _tapLock = true;
+      setTimeout(function() { _tapLock = false; }, 300);
+      handler.call(t, e, t);
+    }, { passive: true });
+    container.addEventListener('click', function(e) {
+      var t = resolve(e);
+      if (!t || _tapLock) return;
+      handler.call(t, e, t);
+    });
+  }
+
+  /* ── Event Binding (all buttons use onTap for iOS Safari compatibility) ── */
+  function bindEvents() {
+    /* Header / FAB */
+    onTap($('btnAddTask'), openAddModal);
+    onTap($('fabAdd'), openAddModal);
+    onTap($('btnMemberManage'), function() { renderMemberList(); openOverlay('memberModalOverlay'); });
+    onTap($('btnMemberMobile'), function() { renderMemberList(); openOverlay('memberModalOverlay'); closeUtilMenu(); });
+
+    /* Task modal buttons */
+    onTap($('modalClose'), function() { closeOverlay('taskModalOverlay'); });
+    onTap($('modalCancel'), function() { closeOverlay('taskModalOverlay'); });
+    onTap($('saveBtn'), saveTask);
+    onTap($('taskModalOverlay'), function(e) { if (e.target === $('taskModalOverlay')) closeOverlay('taskModalOverlay'); });
+
+    /* Member modal buttons */
+    onTap($('memberModalClose'), function() { closeOverlay('memberModalOverlay'); });
+    onTap($('memberModalDone'), function() { closeOverlay('memberModalOverlay'); });
+    onTap($('memberModalOverlay'), function(e) { if (e.target === $('memberModalOverlay')) closeOverlay('memberModalOverlay'); });
+    onTap($('btnAddMember'), function() { addMember($('newMemberName').value); });
+    $('newMemberName').addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); addMember(this.value); } });
+    onTapDelegate($('memberList'), '[data-action="remove-member"]', function(e, btn) { removeMember(btn.dataset.name); });
+
+    /* Confirm dialog */
+    onTap($('confirmOk'), executeDelete);
+    onTap($('confirmCancel'), function() { $('confirmOverlay').classList.remove('active'); });
+
+    /* Filter & search */
+    $('searchInput').addEventListener('input', renderTasks);
+    $('filterStatus').addEventListener('change', renderTasks);
+    $('filterPriority').addEventListener('change', renderTasks);
+    $('filterAssignee').addEventListener('change', renderTasks);
+
+    /* Filter toggle (mobile) */
+    onTap($('btnFilterToggle'), function() { $('toolbarFilters').classList.toggle('open'); });
+
+    /* Utility overflow menu */
+    onTap($('btnUtilOverflow'), function(e) { e.stopPropagation(); $('utilOverflowMenu').classList.toggle('open'); });
+    document.addEventListener('click', function() { $('utilOverflowMenu').classList.remove('open'); });
+    document.addEventListener('touchend', function() { /* close on tap outside */ });
+
+    /* Sort headers (desktop) */
+    onTapDelegate(document.querySelector('.task-table thead'), 'th[data-sort]', function(e, th) {
+      var key = th.dataset.sort;
+      if (currentSort.key === key) { currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc'; } else { currentSort.key = key; currentSort.dir = 'asc'; }
+      renderTasks();
+    });
+
+    /* Table row actions (desktop) */
+    onTapDelegate($('taskTableBody'), '[data-action]', function(e, btn) {
+      if (btn.dataset.action === 'edit') openEditModal(btn.dataset.id);
+      else if (btn.dataset.action === 'delete') openDeleteConfirm(btn.dataset.id);
+    });
+
+    /* Card actions — inline edit badges */
+    onTapDelegate($('taskCards'), '.card-inline-edit', function(e, badge) {
+      openInlinePicker(badge.dataset.id, badge.dataset.field);
+    });
+
+    /* Card actions — edit/delete buttons */
+    onTapDelegate($('taskCards'), '[data-action]', function(e, btn) {
+      if (btn.closest('.card-inline-edit')) return; /* avoid double fire on badges with data-action */
+      if (btn.dataset.action === 'edit') openEditModal(btn.dataset.id);
+      else if (btn.dataset.action === 'delete') openDeleteConfirm(btn.dataset.id);
+    });
+
+    /* Card notes expand */
+    onTapDelegate($('taskCards'), '.task-card-notes', function(e, notes) {
+      notes.classList.toggle('expanded');
+    });
+
+    /* Inline picker options */
+    onTapDelegate($('inlinePickerOptions'), '.inline-picker-option', function(e, opt) {
+      applyInlinePick(opt.dataset.value);
+    });
+    onTap($('inlinePickerOverlay'), function(e) { if (e.target === $('inlinePickerOverlay')) closeInlinePicker(); });
+
+    /* Desktop drag & drop */
+    bindDragDrop($('taskTableBody'), 'tr');
+
+    /* Touch drag & drop for mobile cards */
+    bindTouchDragDrop($('taskCards'));
+
+    /* Export/Import */
+    onTap($('btnExportCSV'), function() { exportCSV(); closeUtilMenu(); });
+    onTap($('btnExportJSON'), function() { exportJSON(); closeUtilMenu(); });
+    $('importFile').addEventListener('change', importJSON);
+
+    /* Keyboard */
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if ($('inlinePickerOverlay').classList.contains('active')) closeInlinePicker();
+        else if ($('confirmOverlay').classList.contains('active')) $('confirmOverlay').classList.remove('active');
+        else if ($('memberModalOverlay').classList.contains('active')) closeOverlay('memberModalOverlay');
+        else if ($('taskModalOverlay').classList.contains('active')) closeOverlay('taskModalOverlay');
+      }
+    });
+
+    var resizeTimer;
+    window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(renderTasks, 150); });
+  }
+
+  function closeUtilMenu() { $('utilOverflowMenu').classList.remove('open'); }
+
+  /* handleRowAction / handleCardAction removed — replaced by onTapDelegate in bindEvents */
+
+  /* ── Desktop Drag & Drop ── */
+  var dragSrcId = null;
+  function bindDragDrop(container, sel) {
+    container.addEventListener('dragstart', function(e) { var item = e.target.closest(sel + '[data-id]'); if (!item) return; dragSrcId = item.dataset.id; item.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragSrcId); });
+    container.addEventListener('dragend', function(e) { var item = e.target.closest(sel + '[data-id]'); if (item) item.classList.remove('dragging'); container.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); }); dragSrcId = null; });
+    container.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; var target = e.target.closest(sel + '[data-id]'); if (!target || target.dataset.id === dragSrcId) return; container.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); }); target.classList.add('drag-over'); });
+    container.addEventListener('dragleave', function(e) { var target = e.target.closest(sel + '[data-id]'); if (target) target.classList.remove('drag-over'); });
+    container.addEventListener('drop', function(e) { e.preventDefault(); container.querySelectorAll('.drag-over').forEach(function(el) { el.classList.remove('drag-over'); }); var target = e.target.closest(sel + '[data-id]'); if (!target || !dragSrcId || target.dataset.id === dragSrcId) return; reorderTasks(dragSrcId, target.dataset.id); });
+  }
+
+  /* ── Touch Drag & Drop (mobile cards) ── */
+  function bindTouchDragDrop(container) {
+    var dragging = null, placeholder = null, startY = 0, scrollInterval = null;
+
+    container.addEventListener('touchstart', function(e) {
+      var handle = e.target.closest('.card-drag-handle');
+      if (!handle) return;
+      var card = handle.closest('.task-card[data-id]');
+      if (!card) return;
+      dragging = card; startY = e.touches[0].clientY;
+      card.classList.add('touch-dragging');
+      placeholder = document.createElement('div');
+      placeholder.style.height = card.offsetHeight + 'px';
+      placeholder.style.marginBottom = '10px';
+      placeholder.style.border = '2px dashed var(--color-primary-bg)';
+      placeholder.style.borderRadius = 'var(--radius-lg)';
+      placeholder.style.background = 'var(--color-primary-subtle)';
+      card.parentNode.insertBefore(placeholder, card);
+      card.style.position = 'fixed';
+      card.style.left = '12px';
+      card.style.right = '12px';
+      card.style.width = 'auto';
+      card.style.zIndex = '70';
+      card.style.top = (card.getBoundingClientRect().top) + 'px';
+    }, { passive: true });
+
+    container.addEventListener('touchmove', function(e) {
+      if (!dragging) return;
+      e.preventDefault();
+      var y = e.touches[0].clientY;
+      dragging.style.top = (y - 30) + 'px';
+
+      /* Auto-scroll */
+      clearInterval(scrollInterval);
+      if (y < 80) { scrollInterval = setInterval(function() { window.scrollBy(0, -8); }, 16); }
+      else if (y > window.innerHeight - 80) { scrollInterval = setInterval(function() { window.scrollBy(0, 8); }, 16); }
+
+      /* Find drop target */
+      container.querySelectorAll('.task-card:not(.touch-dragging)').forEach(function(c) {
+        var rect = c.getBoundingClientRect();
+        c.classList.toggle('touch-drag-over', y > rect.top && y < rect.bottom);
+      });
+    }, { passive: false });
+
+    container.addEventListener('touchend', function() {
+      if (!dragging) return;
+      clearInterval(scrollInterval);
+      var target = container.querySelector('.task-card.touch-drag-over');
+      dragging.classList.remove('touch-dragging');
+      dragging.style.cssText = '';
+      if (placeholder && placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+      container.querySelectorAll('.touch-drag-over').forEach(function(el) { el.classList.remove('touch-drag-over'); });
+
+      if (target && target.dataset.id !== dragging.dataset.id) {
+        reorderTasks(dragging.dataset.id, target.dataset.id);
+      }
+      dragging = null; placeholder = null;
+    });
+  }
+
+  function reorderTasks(fromId, toId) {
+    var fromIdx = tasks.findIndex(function(t) { return t.id === fromId; });
+    var toIdx = tasks.findIndex(function(t) { return t.id === toId; });
+    if (fromIdx < 0 || toIdx < 0) return;
+    var moved = tasks[fromIdx];
+    var updated = tasks.filter(function(_, i) { return i !== fromIdx; });
+    updated.splice(toIdx, 0, moved);
+    tasks = updated.map(function(t, i) { return Object.assign({}, t, { sortOrder: i }); });
+    saveTasks(); currentSort = { key: 'manual', dir: 'asc' }; renderTasks(); showToast('並び順を変更しました');
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

@@ -10,6 +10,45 @@
   ],
   "tasks": [
     {
+      "id": "mngpsa6y69mcok",
+      "inputDate": "2026-04-02",
+      "createdAt": "2026-04-02T00:06:12.634Z",
+      "updatedAt": "2026-04-02T00:06:12.634Z",
+      "title": "設備投資申請　添付資料提出",
+      "assignee": "上野",
+      "priority": "緊急対応",
+      "status": "未着手",
+      "occurredDate": "2026-04-02",
+      "deadline": "2026-04-02",
+      "notes": ""
+    },
+    {
+      "id": "mngprl0b16zujy",
+      "inputDate": "2026-04-02",
+      "createdAt": "2026-04-02T00:05:39.995Z",
+      "updatedAt": "2026-04-02T03:36:26.571Z",
+      "title": "設備フォーキャスト資料提出",
+      "assignee": "上野",
+      "priority": "緊急対応",
+      "status": "確認待ち",
+      "occurredDate": "2026-04-02",
+      "deadline": "2026-04-02",
+      "notes": "・20260402　購買伺い書（たたき台）→宮園部長へ提出→坂本取締役／西浦部長へ共有予定\n・今後発生する業務と役割分担\n・管理番号の取り方（総務受付番号、起案番号の取り方）、保管方法"
+    },
+    {
+      "id": "mngpac6wf0k6u3",
+      "inputDate": "2026-04-01",
+      "createdAt": "2026-04-01T23:52:15.416Z",
+      "updatedAt": "2026-04-01T23:52:15.416Z",
+      "title": "ヤマト運輸料金改定",
+      "assignee": "上野",
+      "priority": "優先中",
+      "status": "未着手",
+      "occurredDate": "2026-04-01",
+      "deadline": "2026-04-20",
+      "notes": "20260402  小嶺さんに状況伝える"
+    },
+    {
       "id": "mnfvegt72s99eq",
       "inputDate": "2026-04-01",
       "createdAt": "2026-04-01T09:55:39.547Z",
@@ -93,20 +132,6 @@
       "sortOrder": 4
     },
     {
-      "id": "mnfmhkhx725b3h",
-      "inputDate": "2026-04-01",
-      "createdAt": "2026-04-01T05:46:07.749Z",
-      "updatedAt": "2026-04-01T05:46:07.749Z",
-      "title": "ヤマト運輸金額交渉",
-      "assignee": "上野",
-      "priority": "優先中",
-      "status": "未着手",
-      "occurredDate": "2026-04-01",
-      "deadline": "2026-04-20",
-      "notes": "",
-      "sortOrder": 5
-    },
-    {
       "id": "mnfjul3dmmteig",
       "inputDate": "2026-04-01",
       "createdAt": "2026-04-01T04:32:16.201Z",
@@ -177,5 +202,5 @@
       "sortOrder": 10
     }
   ],
-  "syncedAt": "2026-04-01T09:55:59.579Z"
+  "syncedAt": "2026-04-02T03:36:37.814Z"
 }

@@ -7,14 +7,26 @@
       "color": "black"
     },
     {
-      "id": "mnh4324m20tkqp",
-      "name": "設備予算・伺い書",
+      "id": "mnh4324m848e3m",
+      "name": "消防・防火",
       "collapsed": true,
       "color": "black"
     },
     {
       "id": "mnh4324mupzua3",
       "name": "法規制・法定点検",
+      "collapsed": true,
+      "color": "black"
+    },
+    {
+      "id": "mnh4324muxdlnv",
+      "name": "毎月定例業務",
+      "collapsed": true,
+      "color": "black"
+    },
+    {
+      "id": "mnh4324m20tkqp",
+      "name": "設備予算・伺い書",
       "collapsed": true,
       "color": "black"
     },
@@ -31,12 +43,6 @@
       "color": "black"
     },
     {
-      "id": "mnh4324m848e3m",
-      "name": "消防・防火",
-      "collapsed": true,
-      "color": "black"
-    },
-    {
       "id": "mnh4324msb5ww1",
       "name": "人事・雇用契約",
       "collapsed": true,
@@ -45,12 +51,6 @@
     {
       "id": "mnh4324mannpk3",
       "name": "ISO審査対応",
-      "collapsed": true,
-      "color": "black"
-    },
-    {
-      "id": "mnh4324muxdlnv",
-      "name": "毎月定例業務",
       "collapsed": true,
       "color": "black"
     },
@@ -303,5 +303,5 @@
       "steps": []
     }
   ],
-  "syncedAt": "2026-04-03T01:53:34.739Z"
+  "syncedAt": "2026-04-03T02:28:43.040Z"
 }
